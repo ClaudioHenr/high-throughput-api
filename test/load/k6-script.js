@@ -4,13 +4,14 @@ import { sleep, check } from 'k6';
 export const options = {
     scenarios: {
         baseline: {
-        executor: 'constant-vus',
-        vus: 100,
-        duration: '30s',
+            executor: 'constant-vus',
+            vus: 100,
+            duration: '30s',
         },
     },
+
     thresholds: {
-        http_req_failed: ['rate<0.01'],       // <1% erros
+        http_req_failed: ['rate<0.01'],
         http_req_duration: [
             'p(95)<300',
             'p(99)<600'

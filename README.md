@@ -298,3 +298,17 @@ A tabela indica que 95% das requisições levaram igual ou menos tempo de execu�
 
 **O que é uma grande diferença em termos de respostas por requisição**
 
+Agora com:
+
+- 100 VUs
+- Adicão de métrica p99
+
+| Métrica | Com pool | Sem pool    |
+| ------- | -------- | ----------- |
+| avg     | ~6 ms    | **111 ms**  |
+| p95     | ~8 ms    | **206 ms**  |
+| p99     | ~112 ms  | **554 ms**  |
+| max     | ~155 ms  | **~570 ms** |
+
+
+
