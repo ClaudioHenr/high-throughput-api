@@ -11,7 +11,7 @@ Este projeto não é um CRUD genérico. Ele simula um **cenário real de sistema
 
 ---
 
-## 🎯 Objetivo do Projeto
+## Objetivo do Projeto
 
 Demonstrar, na prática, como projetar e operar uma API capaz de:
 - Atender milhares de requisições por segundo
@@ -22,7 +22,7 @@ Demonstrar, na prática, como projetar e operar uma API capaz de:
 
 ---
 
-## 🧠 Decisões Técnicas
+## Decisões Técnicas
 
 ### Por que Node.js?
 
@@ -35,6 +35,28 @@ Características que justificam a escolha:
 - Amplamente utilizado em empresas de grande escala
 
 Frameworks como Java e Python são excelentes em outros contextos, mas para este tipo específico de API, Node.js entrega **melhor custo-benefício de performance**.
+
+#### Comparação com JAVA
+
+| Critério               | Node.js                   | Java                 |
+| ---------------------- | ------------------------- | -------------------- |
+| Modelo de concorrência | Event Loop (non-blocking) | Threads              |
+| Overhead por request   | Muito baixo               | Maior                |
+| Tempo de bootstrap     | Muito rápido              | Mais lento           |
+| Consumo de memória     | Menor                     | Maior                |
+| Ideal para             | APIs I/O-bound            | Processamento pesado |
+| Latência p95/p99       | Excelente                 | Boa                  |
+
+#### Comparação com Python
+
+| Critério              | Node.js        | Python         |
+| --------------------- | -------------- | -------------- |
+| Concorrência          | Nativa (async) | Limitada (GIL) |
+| Throughput            | Alto           | Médio          |
+| Latência              | Baixa          | Maior          |
+| Uso em APIs de escala | Muito comum    | Raro           |
+| Melhor uso            | APIs, gateways | Workers, ML    |
+
 
 ---
 
@@ -59,7 +81,7 @@ Redis é utilizado como cache distribuído para:
 
 ---
 
-## 🏗️ Arquitetura (Visão Geral)
+## Arquitetura (Visão Geral)
 
 Client
   ↓
@@ -78,6 +100,23 @@ Resiliência:
 - Rate limiting
 - Circuit breaker
 - Timeout
+
+
+## Fluxo da Requisição
+
+1. Request chega
+
+2. Rate limiter valida
+
+3. Cache é consultado
+
+4. Se HIT → resposta imediata
+
+5. Se MISS → banco
+
+6. Resposta é cacheada
+
+7. Métricas são coletadas
 
 ## Estrutura de pastas
 
