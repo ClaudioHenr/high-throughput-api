@@ -7,3 +7,17 @@ services:
       - "3000:3000"
     env_file:
       - .env.example
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: high_throughput_postgres
+    environment:
+      POSTGRES_DB: high_throughput
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
