@@ -185,3 +185,50 @@ high-throughput-api/
 ├── package.json
 ├── README.md
 ```
+
+## Otimizações da API
+Listarei e explicar resumidamente (por preguiça) cada otimização da API que pretendo usar neste projeto
+
+- Caching
+- Connection Pool
+- Avoid N+1 Problem
+- Pagination and Filtering
+- JSON Serializers Efficient
+- Payload Compression
+- Asynchronous Logging
+- Load Balancing
+- Long-running Requests
+- Rate Limiting
+
+### Connection Pool (Pool de Conexões)
+
+O Connection Pool é um conjunto de conexões já abertas e reutilizáveis, que são compartilhadas entre várias requisições
+
+Em vez de:
+
+`Request → abrir conexão → query → fechar conexão`
+
+Uso:
+
+`Request → pegar conexão do pool → query → devolver conexão ao pool`
+
+
+```
+  ┌────────────┐
+  │  Requests  │
+  └─────┬──────┘
+        │
+  ┌─────▼────────────────────┐
+  │     Pool de Conexões     │
+  │ ┌────┐ ┌────┐ ┌────┐     │
+  │ │ C1 │ │ C2 │ │ C3 │ ... │  ← conexões abertas
+  │ └────┘ └────┘ └────┘     │
+  └─────┬────────────────────┘
+        │
+  ┌─────▼─────┐
+  │ PostgreSQL│
+  └───────────┘
+```
+
+**Quando o app roda o pool de conexões é criado vazio**
+
