@@ -253,6 +253,9 @@ docker-compose down
 
 ./scripts/k6-run.sh test/load/k6-no-pool.js
 
+./scripts/k6-run.sh test/load/k6-cache-vs-db.js
+
+
 
 ```
 
@@ -320,5 +323,88 @@ Principais métricas de interesse:
 
 
 ### COM e SEM Cache (Redis)
+
+Vou testar 3 cenários
+
+| Cenário | Fonte dos dados        |
+| ------- | ---------------------- |
+| A       | PostgreSQL (sem cache) |
+| B       | Redis (cache HIT)      |
+| C       | Cache MISS controlado  |
+
+A comparação será entre endpoint direto no banco com pool e endpoint usando cache redis
+
+| Endpoint                   | Descrição           |
+| -------------------------- | ------------------- |
+| `/items/test/items`        | Banco direto (pool) |
+| `/items/test/items-cached` | Cache Redis         |
+
+
+🔹 Teste 1 — 50 VUs
+| Métrica            | Sem cache (DB) | Com cache (Redis) |
+| ------------------ | -------------- | ----------------- |
+| Requisições totais | 1500           | 1500              |
+| Req/s              | ~49.5          | ~49.5             |
+| Avg latency        | 7.97ms         | 7.99ms            |
+| p90                | 5.10ms         | 4.17ms            |
+| **p95**            | **6.71ms**     | **7.00ms**        |
+| **p99**            | **171.56ms**   | **188.03ms**      |
+| Max                | 192ms          | 205ms             |
+| Erros              | 0%             | 0%                |
+| Threshold p95      | ✅              | ✅                 |
+| Threshold p99      | ✅              | ✅                 |
+
+🔹 Teste 2 — 200 VUs
+| Métrica            | Sem cache (DB) | Com cache (Redis) |
+| ------------------ | -------------- | ----------------- |
+| Requisições totais | 1500           | 1500              |
+| Req/s              | ~49.5          | ~49.5             |
+| Avg latency        | 7.97ms         | 7.99ms            |
+| p90                | 5.10ms         | 4.17ms            |
+| **p95**            | **6.71ms**     | **7.00ms**        |
+| **p99**            | **171.56ms**   | **188.03ms**      |
+| Max                | 192ms          | 205ms             |
+| Erros              | 0%             | 0%                |
+| Threshold p95      | ✅              | ✅                 |
+| Threshold p99      | ✅              | ✅                 |
+
+
+🔹 Teste 3 — 1000 VUs
+| Métrica            | Sem cache (DB) | Com cache (Redis) |
+| ------------------ | -------------- | ----------------- |
+| Requisições totais | ~29.2k         | ~29.7k            |
+| Req/s              | ~942           | ~961              |
+| Avg latency        | **37.63ms**    | **22.45ms** ⬇️    |
+| p90                | 7.36ms         | 5.23ms            |
+| **p95**            | **12.1ms** ❌   | **8.41ms** ✅      |
+| **p99**            | **1.5s** ❌     | **617ms** ❌       |
+| Max                | 2.32s          | 1.41s             |
+| Erros              | 0%             | 0%                |
+| Threshold p95      | ❌              | ✅                 |
+| Threshold p99      | ❌              | ❌                 |
+
+
+🔹 Comparação Geral
+
+| VUs  | Cache | Avg         | p95        | p99      | Max   | Req/s | Threshold |
+| ---- | ----- | ----------- | ---------- | -------- | ----- | ----- | --------- |
+| 50   | ❌     | 7.97ms      | 6.71ms     | 171ms    | 192ms | ~49   | ✅         |
+| 50   | ✅     | 7.99ms      | 7.00ms     | 188ms    | 205ms | ~49   | ✅         |
+| 200  | ❌     | 9.23ms      | 7.66ms     | 216ms    | 298ms | ~197  | ✅         |
+| 200  | ✅     | 10.43ms     | **4.75ms** | 289ms    | 349ms | ~197  | ✅         |
+| 1000 | ❌     | **37.63ms** | **12.1ms** | **1.5s** | 2.32s | ~942  | ❌         |
+| 1000 | ✅     | **22.45ms** | **8.41ms** | 617ms    | 1.41s | ~961  | ❌         |
+
+#### Cache também pode virar gargalo
+
+Redis:
+- single-thread
+- responde rápido, mas fila sob carga extrema
+- precisa:
+  - sharding
+  - replicas
+  - pipeline
+
+ou local cache (LRU in-memory)
 
 

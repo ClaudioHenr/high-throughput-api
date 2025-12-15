@@ -15,7 +15,7 @@ export const getItemsHandler = async (
     const {
         category,
         page = 1,
-        limit = 20,
+        limit = 100,
     } = request.query;
 
     const items = await getItems({
@@ -29,31 +29,35 @@ export const getItemsHandler = async (
 
 const CACHE_KEY = 'items:all';
 const CACHE_TTL_SECONDS = 30;
+const CACHE_ENABLED = process.env.CACHE_ENABLED === 'true';
 
 export const getItemsCachedHandler = async (
     request: FastifyRequest<{ Querystring: ItemsQuery }>,
     reply: FastifyReply
 ) => {
-    const cached = await redis.get(CACHE_KEY);
+    if (CACHE_ENABLED) {
+        const cached = await redis.get(CACHE_KEY)
+        if (cached) {
+            console.log('Cache hit for items');
+            return reply.send({
+                source: 'cache',
+                item: JSON.parse(cached),
+            });
+        }
+    };
     
-    if (cached) {
-        console.log('Cache hit for items');
-        return reply.send({
-            source: 'cache',
-            item: JSON.parse(cached),
-        });
-    }
-
     const item = await getItems({ 
         page: 1, 
         limit: 100 
     });
 
-    await redis.setex(
-        CACHE_KEY,
-        CACHE_TTL_SECONDS,
-        JSON.stringify(item)
-    );
+    if (CACHE_ENABLED) {
+        await redis.setex(
+            CACHE_KEY,
+            CACHE_TTL_SECONDS,
+            JSON.stringify(item)
+        );
+    }
 
     return reply.send({
         source: 'database',

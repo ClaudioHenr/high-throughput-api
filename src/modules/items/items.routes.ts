@@ -2,7 +2,6 @@ import { FastifyInstance } from 'fastify';
 import { createItemHandler, getItemsCachedHandler, getItemsHandler } from './items.controller';
 import { queryNoPool } from '../../config/database.no-pool';
 import { db } from '../../config/database';
-import { create } from 'node:domain';
 
 export const itemsRoutes = async (app: FastifyInstance) => {
     
