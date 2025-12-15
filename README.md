@@ -310,5 +310,14 @@ Agora com:
 | p99     | ~112 ms  | **554 ms**  |
 | max     | ~155 ms  | **~570 ms** |
 
+Principais métricas de interesse:
+
+- http_req_duration: Tempo que cada requisição leva para ser completada. O objetivo aqui é manter esse valor baixo, especialmente no p95 (95% das requisições).
+- http_reqs: Número de requisições por segundo. Indicativo de throughput.
+- http_req_failed: Percentual de falhas. Idealmente, 0%.
+- iteration_duration: Tempo médio de execução de uma iteração. Quanto menor, melhor.
+
+
+### COM e SEM Cache (Redis)
 
 

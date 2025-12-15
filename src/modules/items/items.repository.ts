@@ -33,3 +33,14 @@ export const findItems = async ({
     const { rows } = await db.query(query, values);
     return rows;
 };
+
+export const findItemById = async (id: string) => {
+    const query = `
+        SELECT id, name, category, price
+        FROM items
+        WHERE id = $1
+    `;
+
+    const { rows } = await db.query(query, [id]);
+    return rows[0];
+};

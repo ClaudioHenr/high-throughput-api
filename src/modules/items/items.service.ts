@@ -1,9 +1,14 @@
-import { findItems } from './items.repository';
+import { findItemById, findItems } from './items.repository';
 
 interface GetItemsInput {
     category?: string;
     page: number;
     limit: number;
+}
+
+export interface Item {
+    id: number;
+    name: string;
 }
 
 export const getItems = async ({

@@ -1,11 +1,11 @@
 import { FastifyInstance } from 'fastify';
-import { getItemsHandler } from './items.controller';
+import { getItemsCachedHandler, getItemsHandler } from './items.controller';
 import { queryNoPool } from '../../config/database.no-pool';
 import { db } from '../../config/database';
 
 export const itemsRoutes = async (app: FastifyInstance) => {
+    
     app.get('/', getItemsHandler);
-
 
     // TESTES COM E SEM POOL DE CONEXÕES
 
@@ -18,4 +18,10 @@ export const itemsRoutes = async (app: FastifyInstance) => {
         const result = await queryNoPool('SELECT 1');
         return { ok: true, result };
     });
+
+    //////////////  
+
+    // TESTE REDIS CACHE
+    app.get('/test/items-cached', getItemsCachedHandler);
+    //////////////
 };
