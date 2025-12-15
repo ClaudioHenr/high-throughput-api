@@ -1,4 +1,4 @@
-import { findItemById, findItems } from './items.repository';
+import { findItemById, findItems, createItem } from './items.repository';
 
 interface GetItemsInput {
     category?: string;
@@ -24,3 +24,14 @@ export const getItems = async ({
         offset,
     });
 };
+
+export interface CreateItemDTO {
+    name: string;
+    category: string;
+    price: string;
+}
+
+export const createItemService = async (item: CreateItemDTO) => {
+    const itemCreate = await createItem(item);
+    return itemCreate;
+}

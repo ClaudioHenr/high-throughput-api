@@ -1,7 +1,8 @@
 import { FastifyInstance } from 'fastify';
-import { getItemsCachedHandler, getItemsHandler } from './items.controller';
+import { createItemHandler, getItemsCachedHandler, getItemsHandler } from './items.controller';
 import { queryNoPool } from '../../config/database.no-pool';
 import { db } from '../../config/database';
+import { create } from 'node:domain';
 
 export const itemsRoutes = async (app: FastifyInstance) => {
     
@@ -23,5 +24,9 @@ export const itemsRoutes = async (app: FastifyInstance) => {
 
     // TESTE REDIS CACHE
     app.get('/test/items-cached', getItemsCachedHandler);
+    
+    app.post('/test/items', createItemHandler);
     //////////////
+
+
 };

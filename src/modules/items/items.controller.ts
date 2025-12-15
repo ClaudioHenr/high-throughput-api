@@ -1,5 +1,5 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { getItems } from './items.service';
+import { createItemService, getItems } from './items.service';
 import { redis } from '../../config/redis';
 
 interface ItemsQuery {
@@ -58,5 +58,30 @@ export const getItemsCachedHandler = async (
     return reply.send({
         source: 'database',
         data: item,
+    });
+};
+
+interface CreateItemRequest {
+    Body: {
+        name: string;
+        category: string;
+        price: string;
+    };
+}
+
+export const createItemHandler = async (
+    request: FastifyRequest<CreateItemRequest>,
+    reply: FastifyReply
+) => {
+    const body = request.body;
+
+    const item = await createItemService(body);
+
+    // 🔥 Invalidação de cache
+    await redis.del(CACHE_KEY);
+
+    return reply.code(201).send({
+        message: 'Item created',
+        item,
     });
 };

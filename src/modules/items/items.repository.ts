@@ -44,3 +44,15 @@ export const findItemById = async (id: string) => {
     const { rows } = await db.query(query, [id]);
     return rows[0];
 };
+
+
+export const createItem = async (item: any) => {
+    const { name, category, price } = item;
+
+    const { rows } = await db.query(
+        'INSERT INTO items (name, category, price) VALUES ($1, $2, $3) RETURNING id, name',
+        [name, category, price]
+    );
+    
+    return rows[0];
+}

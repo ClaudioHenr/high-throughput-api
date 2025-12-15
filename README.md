@@ -269,6 +269,7 @@ docker-compose down
 
 /items/test/items-no-pool
 
+/items/test/items-cached
 
 ## Comparações métricas
 
