@@ -408,3 +408,32 @@ Redis:
 ou local cache (LRU in-memory)
 
 
+### Rate Limiting — Testes de Carga
+
+Código de teste no terminal
+```
+for i in {1..120}; do
+  curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:3000/items
+done
+```
+
+#### Testes
+
+| Teste | Objetivo |
+|----|--------|
+| burst | Validar bloqueio sob explosão |
+| cooldown | Verificar recuperação após janela |
+| isolation | Garantir isolamento entre clientes |
+| performance-impact | Medir impacto em latência |
+
+#### Execução
+
+```bash
+./scripts/k6-run.sh ./test/load/rate-limiting/burst.test.js
+./scripts/k6-run.sh ./test/load/rate-limiting/cooldown.test.js
+./scripts/k6-run.sh ./test/load/rate-limiting/isolation.test.js
+./scripts/k6-run.sh ./test/load/rate-limiting/performance-impact.test.js
+```
+
+Após implementado testado o burst usando k6 para validar o comportamento do rate limiting sob rajada rápida de requisições de um único cliente. O sistema respondeu corretamente com HTTP 200 e 429, sem erros 5xx, mantendo baixa latência e estabilidade.
+
