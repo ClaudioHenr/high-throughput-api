@@ -531,3 +531,36 @@ Teste de timeout em http
 
 Teste de timeout em dependências
 
+HTTP retorno o erro de timeout para o usuário, mas ainda tem que lidar com uns problemas no back.
+
+Basicamente:
+- query no DB continua rodando
+- conexão fica ocupada
+- pool começa a esgotar
+- latência sobe para todo mundo
+- efeito cascata
+
+Para resolver, tenho que setar um timeout nas outras camadas
+- Timeout no PostgreSQL
+- Timeout no Redis
+- Cancelamento da operação
+- Testes k6 que provam a diferença
+
+Na conexão com o PostgreSQL o timeout foi feito no inicio do projeto utilizando `connectionTimeoutMillis`
+
+```
+export const db = new Pool({
+    host: process.env.DB_HOST || 'postgres',
+    port: 5432,
+    user: process.env.DB_USER || 'app',
+    password: process.env.DB_PASSWORD || 'app',
+    database: process.env.DB_NAME || 'high_throughput',
+    max: 20,              // pool
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 2000,
+});
+```
+Posteriormente setei o timeout também nas queries 
+
+
+
