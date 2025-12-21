@@ -570,3 +570,15 @@ Posteriormente setei o timeout também nas queries
 | Latência geral | Explode          | Controlada      |
 | Estabilidade   | ❌                | ✅               |
 
+
+Redis
+
+| Item                   | Sem timeout       | Com timeout  |
+| ---------------------- | ----------------- | ------------ |
+| Redis lento            | API trava         | API responde |
+| Consumo de recursos    | Cresce sem limite | Controlado   |
+| Latência               | Explode           | Previsível   |
+| Experiência do cliente | Ruim              | Consistente  |
+| Resiliência            | ❌                 | ✅            |
+
+
