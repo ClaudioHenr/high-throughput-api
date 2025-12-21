@@ -3,6 +3,7 @@ import { createItemHandler, getItemsCachedHandler, getItemsHandler } from './ite
 import { queryNoPool } from '../../config/database.no-pool';
 import { db } from '../../config/database';
 import { queryWithTimeout } from './items.repository';
+import { redis } from '../../config/redis';
 
 export const itemsRoutes = async (app: FastifyInstance) => {
     
@@ -28,7 +29,7 @@ export const itemsRoutes = async (app: FastifyInstance) => {
     app.post('/test/items', createItemHandler);
     //////////////
 
-    // Simular lentidão
+    // TESTES Simular lentidão, TIMEOUT
     app.get('/test/slow-items', async (request: FastifyRequest, reply: FastifyReply) => {
         const delayParam = request.query as { delay?: string };
         const delay = delayParam.delay ? Number(delayParam.delay) : 3000;
@@ -45,6 +46,15 @@ export const itemsRoutes = async (app: FastifyInstance) => {
             return { ok: true };
         } catch (err) {
             reply.code(504).send({ error: 'DB timeout' });
+        }
+    });
+
+    app.get('/redis-slow', async (_, reply) => {
+        try {
+            await redis.call('DEBUG', 'SLEEP', '5');
+            return { ok: true };
+        } catch (err) {
+            reply.code(504).send({ error: 'Redis timeout' });
         }
     });
 

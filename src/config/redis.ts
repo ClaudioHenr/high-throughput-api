@@ -5,6 +5,8 @@ export const redis = new Redis({
     port: Number(process.env.REDIS_PORT) || 6379,
     maxRetriesPerRequest: 2,
     enableReadyCheck: true,
+    connectTimeout: 1000,
+    commandTimeout: 500
 });
 
 redis.on('connect', () => {
