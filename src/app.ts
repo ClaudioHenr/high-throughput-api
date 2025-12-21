@@ -12,7 +12,7 @@ export const buildApp = async () => {
   await app.register(rateLimit, {
     max: 100, // máximo de requisições
     timeWindow: '1 minute', // janela de tempo
-    allowList: ['127.0.0.1'], // opcional (remova depois)
+    allowList: ['127.0.0.1'], // opcional
     addHeaders: {
       'x-ratelimit-limit': true,
       'x-ratelimit-remaining': true,
