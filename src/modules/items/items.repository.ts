@@ -45,7 +45,6 @@ export const findItemById = async (id: string) => {
     return rows[0];
 };
 
-
 export const createItem = async (item: any) => {
     const { name, category, price } = item;
 
@@ -55,4 +54,16 @@ export const createItem = async (item: any) => {
     );
     
     return rows[0];
+}
+
+// Testes de timeout no banco
+export const queryWithTimeout = async <T> (
+    text: string,
+    values: any[] = [],
+    timeoutMs = 2000
+): Promise<T> => {
+
+    await db.query(`SET statement_timeout = ${timeoutMs}`)
+    const result = await db.query(text, values);
+    return result.rows as T;
 }

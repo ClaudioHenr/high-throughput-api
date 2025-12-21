@@ -2,6 +2,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { createItemHandler, getItemsCachedHandler, getItemsHandler } from './items.controller';
 import { queryNoPool } from '../../config/database.no-pool';
 import { db } from '../../config/database';
+import { queryWithTimeout } from './items.repository';
 
 export const itemsRoutes = async (app: FastifyInstance) => {
     
@@ -36,5 +37,16 @@ export const itemsRoutes = async (app: FastifyInstance) => {
         
         return { ok: true, message: `This was a slow response with ${delay}ms delay` };
     });
+
+    
+    app.get('/db-slow', async (_, reply) => {
+        try {
+            await queryWithTimeout('SELECT pg_sleep(5)', [], 2000);
+            return { ok: true };
+        } catch (err) {
+            reply.code(504).send({ error: 'DB timeout' });
+        }
+    });
+
 
 };
