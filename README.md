@@ -563,4 +563,10 @@ export const db = new Pool({
 Posteriormente setei o timeout também nas queries 
 
 
+| Situação       | Sem timeout      | Com timeout     |
+| -------------- | ---------------- | --------------- |
+| DB lento       | Pool esgota      | Query cancelada |
+| Redis lento    | Event loop preso | Erro rápido     |
+| Latência geral | Explode          | Controlada      |
+| Estabilidade   | ❌                | ✅               |
 
