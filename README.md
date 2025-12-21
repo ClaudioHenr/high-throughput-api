@@ -437,3 +437,77 @@ done
 
 Após implementado testado o burst usando k6 para validar o comportamento do rate limiting sob rajada rápida de requisições de um único cliente. O sistema respondeu corretamente com HTTP 200 e 429, sem erros 5xx, mantendo baixa latência e estabilidade.
 
+Teste de Burst
+
+| Métrica          | Resultado       |
+| ---------------- | --------------- |
+| VUs              | 1               |
+| Iterações        | 50              |
+| Duração total    | ~0.1s           |
+| Status esperados | 200             |
+| p95 latência     | 2.55ms          |
+| Erros            | 0%              |
+| Throughput       | ~416 req/s      |
+| Comportamento    | ✅ Aceitou burst |
+
+- O rate limiter não bloqueia rajadas curtas
+- Latência mínima
+- Sem impacto perceptível
+
+Teste de Cooldown
+
+| Métrica                  | Resultado |
+| ------------------------ | --------- |
+| VUs                      | 1         |
+| Iterações                | 15        |
+| Intervalo entre requests | ~5s       |
+| Status esperados         | 200       |
+| p95 latência             | 3.75ms    |
+| Erros                    | 0%        |
+| Tempo de recuperação     | ~1 janela |
+
+
+- O rate limiter libera corretamente após o tempo
+- Não ocorre bloqueio permanente
+- Estado limpo entre janelas
+
+Teste de Isolamento entre usuários
+
+| Métrica               | Resultado |
+| --------------------- | --------- |
+| VUs                   | 20        |
+| Iterações             | 100       |
+| p95 latência          | 102.89ms  |
+| Erros                 | 0%        |
+| Status válidos        | 200 / 429 |
+| Interferência cruzada | ❌ Nenhuma |
+
+- Rate limit aplicado por chave (IP/cliente)
+
+Teste de Performance
+
+| Métrica                      | Resultado    |
+| ---------------------------- | ------------ |
+| VUs                          | 100          |
+| Duração                      | 30s          |
+| Total de requests            | 132.753      |
+| Throughput                   | ~4.422 req/s |
+| p95 latência                 | 33.33ms      |
+| p99 latência                 | ~176ms       |
+| Requisições bloqueadas (429) | ~99.9%       |
+| Colapso do sistema           | ❌ Não        |
+
+- O rate limiter rejeita rápido
+- Sistema permanece estável
+- Latência não explode
+- Banco/cache protegidos
+
+Resumo
+
+| Cenário           | Protege o sistema | Impacto de latência | Comportamento esperado |
+| ----------------- | ----------------- | ------------------- | ---------------------- |
+| Burst curto       | ✅                 | Nenhum              | Aceita                 |
+| Cooldown          | ✅                 | Nenhum              | Recupera               |
+| Isolamento        | ✅                 | Baixo               | Usuários isolados      |
+| Saturação extrema | ✅                 | Controlado          | Bloqueia massivamente  |
+
