@@ -7,6 +7,7 @@ import { itemsRoutes } from './modules/items/items.routes';
 export const buildApp = async () => {
   const app = Fastify({
     logger,
+    requestTimeout: 2000
   });
 
   await app.register(rateLimit, {

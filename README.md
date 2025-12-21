@@ -511,3 +511,23 @@ Resumo
 | Isolamento        | ✅                 | Baixo               | Usuários isolados      |
 | Saturação extrema | ✅                 | Controlado          | Bloqueia massivamente  |
 
+### Timeout
+
+Timeout é limitar o dano causado por dependências lentas ou travadas
+
+Matam requests que:
+- ficam presas
+- não finalizam
+- ficam esperando handler ou dependência
+
+Sem timeout:
+- threads ficam presas
+- event loop fica ocupado
+- pool de conexões esgota
+- latência explode
+- sistema cai em cascata
+
+Teste de timeout em http
+
+Teste de timeout em dependências
+

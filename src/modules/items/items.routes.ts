@@ -1,4 +1,4 @@
-import { FastifyInstance } from 'fastify';
+import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { createItemHandler, getItemsCachedHandler, getItemsHandler } from './items.controller';
 import { queryNoPool } from '../../config/database.no-pool';
 import { db } from '../../config/database';
@@ -27,5 +27,14 @@ export const itemsRoutes = async (app: FastifyInstance) => {
     app.post('/test/items', createItemHandler);
     //////////////
 
+    // Simular lentidão
+    app.get('/test/slow-items', async (request: FastifyRequest, reply: FastifyReply) => {
+        const delayParam = request.query as { delay?: string };
+        const delay = delayParam.delay ? Number(delayParam.delay) : 3000;
+
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        
+        return { ok: true, message: `This was a slow response with ${delay}ms delay` };
+    });
 
 };
