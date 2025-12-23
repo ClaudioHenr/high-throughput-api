@@ -581,4 +581,93 @@ Redis
 | Experiência do cliente | Ruim              | Consistente  |
 | Resiliência            | ❌                 | ✅            |
 
+#### CIrcuit Breaker
+
+timeout melhora em muita a resiliencia do projeto, "matando" requisições demoradas devido lentidão, contudo em cada requisição, sempre vai haver a tentativa de acessar a dependência quebrada
+
+Consequências:
+- CPU desperdiçada
+- Pool de conexões sendo usado
+- Logs cheios
+- Pressão constante sobre algo que já está doente
+- Cascata de falhas (cascade failure)
+
+Circuit Breaker ≠ Retry ≠ Timeout
+
+| Conceito        | Função          | Problema que resolve |
+| --------------- | --------------- | -------------------- |
+| Timeout         | Limita espera   | Dependência lenta    |
+| Retry           | Tenta novamente | Falhas transitórias  |
+| Circuit Breaker | Para de tentar  | Dependência quebrada |
+
+
+Ordem dos mecanismos
+
+```
+Request
+ ├─ Rate Limit
+ ├─ Circuit Breaker
+ │   ├─ OPEN → falha imediata
+ │   └─ CLOSED → continua
+ ├─ Timeout
+ ├─ Retry (opcional)
+ └─ Dependência externa
+```
+
+O Circuit Breaker não testa carga, ele testa estado e transição.
+
+Testes de Circuit BReaker envolvem
+| O que testar        | Por quê                     |
+| ------------------- | --------------------------- |
+| CLOSED → OPEN       | Proteção ao detectar falhas |
+| OPEN → fail-fast    | Não chamar dependência      |
+| OPEN → HALF-OPEN    | Tentativa controlada        |
+| HALF-OPEN → CLOSED  | Recuperação                 |
+| HALF-OPEN → OPEN    | Recaída                     |
+| Impacto em latência | Benefício real              |
+| Isolamento          | Um cliente não afeta outro  |
+
+
+Resultados esperados:
+| Situação                   | Status          |
+| -------------------------- | --------------- |
+| CLOSED e dependência ok    | 200             |
+| CLOSED e dependência falha | 504             |
+| OPEN                       | 503 (fail-fast) |
+| HALF-OPEN sucesso          | 200             |
+| HALF-OPEN falha            | 503             |
+
+Estrutura de testes:
+```
+test/
+ └── load/
+     └── circuit-breaker/
+         ├── closed-state.test.js
+         ├── open-state.test.js
+         ├── half-open-recovery.test.js
+         ├── half-open-failure.test.js
+         └── performance-impact.test.js
+```
+
+```
+./scripts/k6-run.sh ./test/load/circuit-breaker/closed-state.test.js
+./scripts/k6-run.sh ./test/load/circuit-breaker/half-open-failure.test.js
+./scripts/k6-run.sh ./test/load/circuit-breaker/half-open-recovery.test.js
+./scripts/k6-run.sh ./test/load/circuit-breaker/open-state.test.js
+./scripts/k6-run.sh ./test/load/circuit-breaker/performance-impact.test.js
+```
+
+Sem Circuit Breaker
+Performance
+  █ THRESHOLDS 
+
+    http_req_duration
+    ✓ 'p(95)<50' p(95)=19.84ms
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 258276  8606.655329/s
+    checks_succeeded...: 0.00%   0 out of 258276
+    checks_failed......: 100.00% 258276 out of 258276
 
