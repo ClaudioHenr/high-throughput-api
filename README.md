@@ -276,6 +276,8 @@ docker-compose down
 
 ## Comparações métricas
 
+Uma questão essencial no meu projeto é que implementarei e testarei cada otimização ou `feature` separamente, sem as outras, ou seja, Connection Pool, Timeout, Circuit Breaker, etc. em **branchs separadas**
+
 ### COM e SEM Connection Pool
 
 Considerando a query:
