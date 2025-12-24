@@ -2,13 +2,9 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { createItemHandler, getItemsCachedHandler, getItemsHandler } from './items.controller';
 import { queryNoPool } from '../../config/database.no-pool';
 import { db } from '../../config/database';
-<<<<<<< HEAD
 import { queryWithTimeout } from './items.repository';
 import { redis } from '../../config/redis';
 import { getFromDb, getFromRedis } from './items.service';
-=======
-import { getFromDb, getFromRedis } from './items.service';
->>>>>>> 60c3247 (feat: implementação de circuit breaker)
 
 export const itemsRoutes = async (app: FastifyInstance) => {
     
