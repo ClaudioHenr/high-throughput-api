@@ -659,17 +659,35 @@ test/
 ./scripts/k6-run.sh ./test/load/circuit-breaker/performance-impact.test.js
 ```
 
-Sem Circuit Breaker
-Performance
-  █ THRESHOLDS 
+##### Resultados esperados após implementação de Circuit Breaker
 
-    http_req_duration
-    ✓ 'p(95)<50' p(95)=19.84ms
+| Teste k6          | Resultado esperado    |
+| ----------------- | --------------------- |
+| closed-to-open    | começa 504 → vira 503 |
+| open-fail-fast    | 503 imediato          |
+| half-open         | após timeout libera   |
+| half-open-failure | volta a OPEN          |
+| performance       | latência baixa        |
 
+##### Testes com Circuit Breaker implementado
 
-  █ TOTAL RESULTS 
+###### Closed-to-open
 
-    checks_total.......: 258276  8606.655329/s
-    checks_succeeded...: 0.00%   0 out of 258276
-    checks_failed......: 100.00% 258276 out of 258276
+Na primeira `request` é devolvido a resposta:
+```
+{
+  "ok": false,
+  "message": "DB request failed",
+  "status": 500
+}
+```
+Na segunda `request` recebo
+```
+{
+  "ok": false,
+  "message": "Circuit is open. Request blocked.",
+  "status": 503
+}
+```
+O que indica o comportamento do `Circuit Breaker`, de após erro houver o bloqueio do recurso (`open state`)
 
