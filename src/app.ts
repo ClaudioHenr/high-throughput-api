@@ -3,6 +3,8 @@ import rateLimit from '@fastify/rate-limit';
 import { healthRoutes } from './modules/health/health.routes';
 import { logger } from './shared/logger/logger';
 import { itemsRoutes } from './modules/items/items.routes';
+import { metricsPlugin } from './plugins/metrics.plugin';
+import { metricsRoute } from './routes/metrics.routes';
 
 export const buildApp = async () => {
   const app = Fastify({
@@ -21,8 +23,15 @@ export const buildApp = async () => {
     },
   });
 
+  // Metricas
+  app.register(metricsPlugin);
+
   app.register(healthRoutes, { prefix: '/health' });
   app.register(itemsRoutes, { prefix: '/items' });
+
+  app.register(metricsRoute);
+
+  console.log(app.printRoutes());
 
   return app;
 };
