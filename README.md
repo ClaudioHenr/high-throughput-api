@@ -583,7 +583,7 @@ Redis
 | Experiência do cliente | Ruim              | Consistente  |
 | Resiliência            | ❌                 | ✅            |
 
-#### CIrcuit Breaker
+### Circuit Breaker
 
 timeout melhora em muita a resiliencia do projeto, "matando" requisições demoradas devido lentidão, contudo em cada requisição, sempre vai haver a tentativa de acessar a dependência quebrada
 
@@ -659,7 +659,7 @@ test/
 ./scripts/k6-run.sh ./test/load/circuit-breaker/performance-impact.test.js
 ```
 
-##### Resultados esperados após implementação de Circuit Breaker
+#### Resultados esperados após implementação de Circuit Breaker
 
 | Teste k6          | Resultado esperado    |
 | ----------------- | --------------------- |
@@ -669,9 +669,9 @@ test/
 | half-open-failure | volta a OPEN          |
 | performance       | latência baixa        |
 
-##### Testes com Circuit Breaker implementado
+#### Testes com Circuit Breaker implementado
 
-###### Closed-to-open
+##### Closed-to-open
 
 Na primeira `request` é devolvido a resposta:
 ```
@@ -690,4 +690,37 @@ Na segunda `request` recebo
 }
 ```
 O que indica o comportamento do `Circuit Breaker`, de após erro houver o bloqueio do recurso (`open state`)
+
+## Obervalidade
+
+### Prometheus
+
+Prometheus é um...
+
+
+
+Objetivos:
+- Contador de requisições
+- Latência por endpoint
+- Erros (4xx / 5xx)
+- Estado do circuit breaker
+- Hits/miss de cache
+
+Vou expor as métricas usando um endopoint chamado `/metrics`
+
+Para começar, instalei a biblioteca `prom-client` que é a biblioteca oficial de instrumentação Prometheus para Node.js.
+
+Essa biblioteca cria e mantém métricas em mémoria
+
+`https://www.npmjs.com/package/prom-client`
+
+#### Práticas no Prometheus
+
+Cardinalidade baixa
+- Usar rota normalizada
+- Nunca usar URL crua com querystring
+
+
+### Grafana
+
 
