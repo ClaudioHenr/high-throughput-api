@@ -14,6 +14,7 @@ export const itemsRoutes = async (app: FastifyInstance) => {
 
     app.get('/test/items', async () => {
         const result = await db.query('SELECT 1');
+        console.log("TESTE DE ITEMS")
         return { ok: true, result };
     });
 
