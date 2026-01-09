@@ -697,8 +697,6 @@ O que indica o comportamento do `Circuit Breaker`, de após erro houver o bloque
 
 Prometheus é um...
 
-
-
 Objetivos:
 - Contador de requisições
 - Latência por endpoint
@@ -722,5 +720,55 @@ Cardinalidade baixa
 
 
 ### Grafana
+
+
+
+##### Criação das métricas
+
+As métricas criadas foram:
+
+`http_requests_total`: Total de requisições HTTP recebidas
+`cache_hits_total`: Quantidade de leituras atendidas pelo cache
+`cache_misses_total`: Quantidade de leituras que precisam ir ao banco
+`circuit_failures_total`: Número total de falhas que impactaram o circuito
+`rate_limited_requests_total`: Total de requisições bloqueadas pelo rate limiter
+
+`http_request_duration_seconds`: Durações das requisições HTTP (histogram)
+`circuit_state`: Estado atualdo cicuito (gauge)
+
+##### Prometheus e Grafana
+
+
+1. Criar arquivo `prometheus.yml` na raiz do projeto
+
+2. Necessario criar uma rede docker para comunicação dos dois
+```
+docker network create observability
+```
+
+3. Subir Prometheus
+```
+docker run -d \
+  --name prometheus \
+  --network observability \
+  -p 9090:9090 \
+  -v "$(pwd)/prometheus.yml:/etc/prometheus/prometheus.yml" \
+  prom/prometheus
+```
+
+4. Subir Grafana
+```
+docker run -d \
+  --name grafana \
+  --network observability \
+  -p 3001:3000 \
+  grafana/grafana
+```
+
+5. Conectar Grafana ao Prometheus
+  - Settings -> Data Sources
+  - Add data source -> Prometheus
+  - Insira a ULR `http://prometheus:9090`
+  - Save & Test
 
 
