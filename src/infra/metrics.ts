@@ -32,4 +32,10 @@ export const cacheMissesTotal = new client.Counter({
     labelNames: ['cache'],
 });
 
+export const rateLimitedRequestsTotal = new client.Counter({
+    name: 'rate_limited_requests_total',
+    help: 'Total de requisições bloqueadas por rate limiting',
+    labelNames: ['route'],
+});
+
 export const register = client.register;

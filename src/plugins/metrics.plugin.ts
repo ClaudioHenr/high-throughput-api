@@ -1,6 +1,6 @@
 import fp from 'fastify-plugin';
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import { httpRequestDuration, httpRequestsTotal } from '../infra/metrics';
+import { httpRequestDuration, httpRequestsTotal, rateLimitedRequestsTotal } from '../infra/metrics';
 
 export const metricsPlugin = fp(async (app: FastifyInstance) => {
     console.log('Metrics plugin registrado');
@@ -17,6 +17,12 @@ export const metricsPlugin = fp(async (app: FastifyInstance) => {
         console.log('ON RESPONSE acionado');
 
         if (!request.startTime) return;
+
+        if (reply.statusCode === 429) {
+            rateLimitedRequestsTotal.inc({
+                route: request.routeOptions?.url ?? 'unknown',
+            });
+        }
 
         const diff = process.hrtime(request.startTime);
         const durationInSeconds = diff[0] + diff[1] / 1e9;
