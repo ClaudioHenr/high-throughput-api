@@ -1,7 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { createItemService, getItems } from './items.service';
 import { redis } from '../../config/redis';
-import { cacheHitsTotal, cacheMissesTotal } from '../../infra/metrics';
+import { cacheHitsTotal, cacheMissesTotal, circuitFailuresTotal } from '../../infra/metrics';
 
 interface ItemsQuery {
     category?: string;
@@ -37,22 +37,30 @@ export const getItemsCachedHandler = async (
     reply: FastifyReply
 ) => {
     if (CACHE_ENABLED) {
-        const cached = await redis.get(CACHE_KEY)
-        console.log('CACHE KEY is ', CACHE_KEY);
-        if (cached) {
-            console.log('Cache hit for items');
+        try {
+            const cached = await redis.get(CACHE_KEY)
 
-            console.log('Counting cache hit metric for redis');
-            cacheHitsTotal.inc({
-                cache: 'redis',
-            });
+            console.log('CACHE KEY is ', CACHE_KEY);
+            if (cached) {
+                console.log('Cache hit for items');
 
-            return reply.send({
-                source: 'cache',
-                item: JSON.parse(cached),
+                console.log('Counting cache hit metric for redis');
+                cacheHitsTotal.inc({
+                    cache: 'redis',
+                });
+
+                return reply.send({
+                    source: 'cache',
+                    item: JSON.parse(cached),
+                });
+            }
+        } catch (error) {
+            console.error('Error accessing Redis:', error);
+            circuitFailuresTotal.inc({
+                service: 'redis',
             });
         }
-    };
+    }
 
     console.log('Cache miss for items');
     cacheMissesTotal.inc({

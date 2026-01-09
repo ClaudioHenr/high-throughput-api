@@ -32,6 +32,12 @@ export const cacheMissesTotal = new client.Counter({
     labelNames: ['cache'],
 });
 
+export const circuitFailuresTotal = new client.Counter({
+    name: 'circuit_failures_total',
+    help: 'Total de falhas que contribuíram para abrir o circuito',
+    labelNames: ['service'],
+});
+
 export const rateLimitedRequestsTotal = new client.Counter({
     name: 'rate_limited_requests_total',
     help: 'Total de requisições bloqueadas por rate limiting',
