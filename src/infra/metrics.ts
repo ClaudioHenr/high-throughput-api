@@ -20,4 +20,16 @@ export const httpRequestsTotal = new client.Counter({
     labelNames: ['method', 'route', 'status_code'],
 });
 
+export const cacheHitsTotal = new client.Counter({
+    name: 'cache_hits_total',
+    help: 'Total de cache hits',
+    labelNames: ['cache'],
+});
+
+export const cacheMissesTotal = new client.Counter({
+    name: 'cache_misses_total',
+    help: 'Total de cache misses',
+    labelNames: ['cache'],
+});
+
 export const register = client.register;
