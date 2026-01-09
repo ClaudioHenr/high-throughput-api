@@ -32,6 +32,12 @@ export const cacheMissesTotal = new client.Counter({
     labelNames: ['cache'],
 });
 
+export const circuitState = new client.Gauge({
+    name: 'circuit_state',
+    help: 'Estado atual do circuito (0 = fechado, 1 = aberto, 2 = meio-aberto)',
+    labelNames: ['service'],
+});
+
 export const circuitFailuresTotal = new client.Counter({
     name: 'circuit_failures_total',
     help: 'Total de falhas que contribuíram para abrir o circuito',

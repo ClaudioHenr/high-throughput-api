@@ -37,7 +37,7 @@ export const createItemService = async (item: CreateItemDTO) => {
     return itemCreate;
 }
 
-const redisCircuit = new CircuitBreaker(3, 30000)
+const redisCircuit = new CircuitBreaker('redis', 3, 30000)
 
 export async function getFromRedis() {
     if (!redisCircuit.canExecute()) {
@@ -52,7 +52,7 @@ export async function getFromRedis() {
     }
 }
 
-const dbCircuit = new CircuitBreaker(3, 30000)
+const dbCircuit = new CircuitBreaker('db', 3, 30000)
 
 export async function getFromDb() {
     if (!dbCircuit.canExecute()) {
