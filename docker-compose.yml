@@ -1,15 +1,25 @@
-version: '3.9'
+version: "3.9"
 
 services:
   api:
     build: .
+    container_name: high-throughput-api
     ports:
       - "3000:3000"
     env_file:
-      - .env.example
+      - .env
     depends_on:
+      - redis
       - postgres
-  
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: high_throughput
+    networks:
+      - observability
+
   postgres:
     image: postgres:16-alpine
     container_name: high_throughput_postgres
@@ -21,8 +31,39 @@ services:
       - "5432:5432"
     volumes:
       - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - observability
 
   redis:
-    image: redis:7
+    image: redis:7-alpine
+    container_name: redis
     ports:
       - "6379:6379"
+    networks:
+      - observability
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - api
+    networks:
+      - observability
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3001:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - observability
+
+networks:
+  observability:
+    driver: bridge
