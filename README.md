@@ -695,7 +695,9 @@ O que indica o comportamento do `Circuit Breaker`, de após erro houver o bloque
 
 ### Prometheus
 
-Prometheus é um...
+Prometheus é um sistema de monitoramento e coleta de métricas baseado em pull, amplamente utilizado em arquiteturas modernas e cloud-native.
+
+Ele coleta métricas expostas pela aplicação, armazena séries temporais e permite consultas via PromQL.
 
 Objetivos:
 - Contador de requisições
@@ -708,20 +710,37 @@ Vou expor as métricas usando um endopoint chamado `/metrics`
 
 Para começar, instalei a biblioteca `prom-client` que é a biblioteca oficial de instrumentação Prometheus para Node.js.
 
-Essa biblioteca cria e mantém métricas em mémoria
+Essa biblioteca `prom-client`
 
 `https://www.npmjs.com/package/prom-client`
 
+Essa biblioteca:
+
+- Mantém métricas em memória
+- Exporta no formato compatível com Prometheus
+- Possui suporte a Counter, Gauge, Histogram e Summary
+
 #### Práticas no Prometheus
 
-Cardinalidade baixa
-- Usar rota normalizada
-- Nunca usar URL crua com querystring
+1. Baixa cardinalidade
 
+Para evitar explosão de memória e degradação de performance:
+
+- Rotas HTTP são normalizadas
+- Nunca utilizamos URLs cruas com querystring como label
+- Labels são limitados a valores previsíveis (ex: method, route, status)
+
+2. Métricas focadas em comportamento do sistema
+
+Não coletamos métricas “decorativas”, apenas aquelas que:
+
+- Afetam performance
+- Afetam confiabilidade
+- Ajudam em decisões operacionais
 
 ### Grafana
 
-
+Grafana é uma ferramenta de visualização de métricas que se integra ao Prometheus e permite a criação de dashboards interativos.
 
 ##### Criação das métricas
 
@@ -732,43 +751,25 @@ As métricas criadas foram:
 `cache_misses_total`: Quantidade de leituras que precisam ir ao banco
 `circuit_failures_total`: Número total de falhas que impactaram o circuito
 `rate_limited_requests_total`: Total de requisições bloqueadas pelo rate limiter
-
 `http_request_duration_seconds`: Durações das requisições HTTP (histogram)
 `circuit_state`: Estado atualdo cicuito (gauge)
 
-##### Prometheus e Grafana
+### Executar a aplicação
 
+Todos os arquivos para subir todo o projeto junto com Prometheus e Grafana estão configurados
 
-1. Criar arquivo `prometheus.yml` na raiz do projeto
-
-2. Necessario criar uma rede docker para comunicação dos dois
 ```
-docker network create observability
+docker-compose up --build
 ```
 
-3. Subir Prometheus
-```
-docker run -d \
-  --name prometheus \
-  --network observability \
-  -p 9090:9090 \
-  -v "$(pwd)/prometheus.yml:/etc/prometheus/prometheus.yml" \
-  prom/prometheus
-```
+#### Acessos da aplicação
 
-4. Subir Grafana
-```
-docker run -d \
-  --name grafana \
-  --network observability \
-  -p 3001:3000 \
-  grafana/grafana
-```
-
-5. Conectar Grafana ao Prometheus
-  - Settings -> Data Sources
-  - Add data source -> Prometheus
-  - Insira a ULR `http://prometheus:9090`
-  - Save & Test
-
+| Serviço    | URL                                                            |
+| ---------- | -------------------------------------------------------------- |
+| API        | [http://localhost:3000](http://localhost:3000)                 |
+| Métricas   | [http://localhost:3000/metrics](http://localhost:3000/metrics) |
+| Prometheus | [http://localhost:9090](http://localhost:9090)                 |
+| Grafana    | [http://localhost:3001](http://localhost:3001)                 |
+| PostgreSQL | localhost:5432                                                 |
+| Redis      | localhost:6379                                                 |
 
